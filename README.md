@@ -2,7 +2,7 @@
 
 Inline math calculation with Tab-to-complete for React. Type `9439+3299`, see `= 12,738`, press Tab to replace.
 
-<video src="https://github.com/freaktion-craft/react-inline-calc/raw/main/demo.mp4" autoplay loop muted playsinline></video>
+<video src="https://github.com/user-attachments/assets/b7a7f624-5562-47a1-9cbe-59bd2cd0a460" autoplay loop muted playsinline></video>
 
 ## Features
 
