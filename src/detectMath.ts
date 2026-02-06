@@ -143,7 +143,11 @@ const MATH_REGEX = /[+\-*/x×]\s*\([^)]+\)(?:\s*[+\-*/x×]\s*\(?[^)]*\)?)*|\([^)
  * Find all valid math expressions in text.
  * Shared logic for both detectMathExpression and detectMathExpressionAtCursor.
  */
+const MAX_INPUT_LENGTH = 10_000;
+
 function findAllExpressions(text: string): MathExpressionResult[] {
+  if (text.length > MAX_INPUT_LENGTH) return [];
+
   const results: MathExpressionResult[] = [];
   const regex = new RegExp(MATH_REGEX.source, MATH_REGEX.flags);
   let match;
@@ -162,6 +166,7 @@ function findAllExpressions(text: string): MathExpressionResult[] {
     const tokens = tokenize(fullMatch);
     const result = evaluateTokens(tokens);
     if (result === null) continue;
+    if (!Number.isFinite(result)) continue;
 
     const formattedResult = Number.isInteger(result)
       ? result

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import type { CSSProperties, ReactNode } from "react";
 import { Keycap } from "./Keycap";
 
+/** Props for the InlineCalcTooltip component. */
 export interface InlineCalcTooltipProps {
   result: number;
   position: { top: number; left: number };
@@ -31,12 +32,12 @@ const tooltipStyle: CSSProperties = {
   alignItems: "center",
   gap: 6,
   padding: "4px 6px 4px 8px",
-  backgroundColor: "white",
+  backgroundColor: "var(--inline-calc-bg, white)",
   borderRadius: 8,
-  border: "1px solid rgba(0, 0, 0, 0.1)",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04)",
+  border: "1px solid var(--inline-calc-border, rgba(0, 0, 0, 0.1))",
+  boxShadow: "var(--inline-calc-shadow, 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04))",
   fontSize: 12,
-  color: "rgba(0, 0, 0, 0.5)",
+  color: "var(--inline-calc-text, rgba(0, 0, 0, 0.5))",
 };
 
 const resultStyle: CSSProperties = {
@@ -44,7 +45,7 @@ const resultStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   fontWeight: 500,
-  color: "rgba(0, 0, 0, 0.7)",
+  color: "var(--inline-calc-result, rgba(0, 0, 0, 0.7))",
 };
 
 function TooltipContent({
@@ -67,6 +68,11 @@ function TooltipContent({
   );
 }
 
+/**
+ * Tooltip component displaying the calculated result with a keyboard hint.
+ * Renders as a portal to document.body by default. Supports custom animation
+ * via the `as` prop (e.g., motion.div) and `animationProps`.
+ */
 export function InlineCalcTooltip({
   result,
   position,

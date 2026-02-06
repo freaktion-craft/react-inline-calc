@@ -15,8 +15,8 @@
  * --inline-calc-highlight: #fef08a;
  */
 
-/* Toast container */
-.inline-calc-toast {
+/* Tooltip container */
+.inline-calc-tooltip {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -63,7 +63,7 @@
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-  .inline-calc-toast {
+  .inline-calc-tooltip {
     --inline-calc-bg: #1a1a1a;
     --inline-calc-border: rgba(255, 255, 255, 0.1);
     --inline-calc-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);

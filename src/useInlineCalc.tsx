@@ -1,15 +1,20 @@
-import { useReducer, useCallback, useRef, useEffect, type RefObject } from "react";
+"use client";
+
+import { useReducer, useCallback, useRef, useEffect, useId, type RefObject } from "react";
 import { detectMathExpression, detectMathExpressionAtCursor } from "./detectMath";
-import { getTextNodes } from "./getTextNodes";
+import { getTextNodes, findTextNodeAtOffset } from "./getTextNodes";
+import { injectHighlightStyles, setHighlight, clearHighlight } from "./highlight";
 import { InlineCalcTooltip, type InlineCalcTooltipProps } from "./InlineCalcTooltip";
 
 // --- Types ---
 
+/** Position coordinates for the inline calculator tooltip. */
 export interface InlineCalcPosition {
   top: number;
   left: number;
 }
 
+/** Context object passed to onBeforeApply callback, allowing cancellation via preventDefault. */
 export interface ApplyContext {
   expression: string;
   result: number;
@@ -19,6 +24,7 @@ export interface ApplyContext {
   preventDefault: () => void;
 }
 
+/** Configuration options for the imperative useInlineCalc API (manual getEditor). */
 export interface InlineCalcOptions {
   getEditor: () => HTMLElement | null;
   onBeforeApply?: (ctx: ApplyContext) => void;
@@ -28,6 +34,7 @@ export interface InlineCalcOptions {
   formatResult?: (result: number) => string;
 }
 
+/** Configuration options for the ref-based useInlineCalc API (auto-attach to editor). */
 export interface InlineCalcRefOptions extends Omit<InlineCalcOptions, "getEditor"> {
   autoAttach?: boolean;
   highlight?: boolean | { color?: string; highlightName?: string };
@@ -38,6 +45,7 @@ type InlineCalcState =
   | { show: false; expression: null; result: null; position: InlineCalcPosition }
   | { show: true; expression: string; result: number; position: InlineCalcPosition };
 
+/** Return type of useInlineCalc hook with state, actions, and tooltip helpers. */
 export type InlineCalcReturn = InlineCalcState & {
   dismiss: () => void;
   apply: () => void;
@@ -68,20 +76,32 @@ function replaceExpressionInEditor(
   replacement: string,
   startIndex: number | null
 ) {
+  // Primary path: use findTextNodeAtOffset when we know the start index
+  if (startIndex !== null) {
+    const found = findTextNodeAtOffset(editor, startIndex);
+    if (found) {
+      const { node, localOffset } = found;
+      const safeOffset = Math.min(localOffset, node.textContent?.length || 0);
+      const before = node.textContent?.slice(0, safeOffset) || "";
+      const after = node.textContent?.slice(safeOffset + expression.length) || "";
+      node.textContent = before + replacement + after;
+
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.setStart(node, Math.min(before.length + replacement.length, node.textContent.length));
+      range.collapse(true);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      return;
+    }
+  }
+
+  // Fallback: walk text nodes and search by string content
   const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null);
   let node: Text | null;
-  let currentOffset = 0;
 
   while ((node = walker.nextNode() as Text | null)) {
-    const nodeLength = node.textContent?.length || 0;
-    const nodeEnd = currentOffset + nodeLength;
-
-    const localIndex =
-      startIndex !== null && startIndex >= currentOffset && startIndex < nodeEnd
-        ? startIndex - currentOffset
-        : startIndex === null
-          ? (node.textContent?.indexOf(expression) ?? -1)
-          : -1;
+    const localIndex = node.textContent?.indexOf(expression) ?? -1;
 
     if (localIndex !== -1) {
       const before = node.textContent?.slice(0, localIndex) || "";
@@ -90,14 +110,12 @@ function replaceExpressionInEditor(
 
       const selection = window.getSelection();
       const range = document.createRange();
-      range.setStart(node, before.length + replacement.length);
+      range.setStart(node, Math.min(before.length + replacement.length, node.textContent.length));
       range.collapse(true);
       selection?.removeAllRanges();
       selection?.addRange(range);
       return;
     }
-
-    currentOffset = nodeEnd;
   }
 }
 
@@ -109,21 +127,6 @@ function getCursorOffset(el: HTMLElement): number | undefined {
   pre.selectNodeContents(el);
   pre.setEnd(range.startContainer, range.startOffset);
   return pre.toString().length;
-}
-
-// Highlight styles injection
-let hlStylesInjected = false;
-
-function injectHighlightStyles(name: string, color: string): void {
-  if (typeof window === "undefined" || hlStylesInjected) return;
-  if (typeof CSS === "undefined" || !CSS.highlights) return;
-  const id = "inline-calc-highlight-styles";
-  if (document.getElementById(id)) { hlStylesInjected = true; return; }
-  const style = document.createElement("style");
-  style.id = id;
-  style.textContent = `::highlight(${name}) { background-color: var(--inline-calc-highlight, ${color}); }`;
-  document.head.appendChild(style);
-  hlStylesInjected = true;
 }
 
 // --- Reducer ---
@@ -181,11 +184,14 @@ export function useInlineCalc(
   const stateRef = useRef(state);
   stateRef.current = state;
 
+  const reactId = useId();
+  const defaultHlName = "math-highlight-" + reactId.replace(/:/g, "");
+
   // --- Highlight ---
 
   const hlOpt = refOptions?.highlight;
   const hlEnabled = editorRefStable !== null && hlOpt != null && hlOpt !== false;
-  const hlName = (typeof hlOpt === "object" ? hlOpt.highlightName : undefined) ?? "math-highlight";
+  const hlName = (typeof hlOpt === "object" ? hlOpt.highlightName : undefined) ?? defaultHlName;
   const hlColor = (typeof hlOpt === "object" ? hlOpt.color : undefined) ?? "#fef08a";
 
   useEffect(() => {
@@ -194,46 +200,15 @@ export function useInlineCalc(
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (typeof CSS === "undefined" || !CSS.highlights) return;
 
     if (!hlEnabled || !state.expression || !state.show || !editorRefStable?.current) {
-      CSS.highlights.delete(hlName);
+      clearHighlight(hlName);
       return;
     }
 
-    const editor = editorRefStable.current;
-    const text = editor.textContent || "";
-    const index = text.indexOf(state.expression);
+    setHighlight(editorRefStable.current, state.expression, hlName);
 
-    if (index === -1) {
-      CSS.highlights.delete(hlName);
-      return;
-    }
-
-    const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
-    let currentIndex = 0;
-
-    while (walker.nextNode()) {
-      const node = walker.currentNode as Text;
-      const nodeLength = node.length;
-
-      if (currentIndex + nodeLength > index) {
-        const range = new Range();
-        const startOffset = index - currentIndex;
-        range.setStart(node, startOffset);
-        range.setEnd(node, Math.min(startOffset + state.expression.length, nodeLength));
-        CSS.highlights.set(hlName, new Highlight(range));
-        break;
-      }
-
-      currentIndex += nodeLength;
-    }
-
-    return () => {
-      if (typeof CSS !== "undefined" && CSS.highlights) {
-        CSS.highlights.delete(hlName);
-      }
-    };
+    return () => { clearHighlight(hlName); };
   }, [state.expression, state.show, hlEnabled, hlName, editorRefStable]);
 
   // --- Callbacks ---
@@ -258,7 +233,6 @@ export function useInlineCalc(
 
     const { getEditor, formatResult, onBeforeApply, onApply } = optionsRef.current;
     const editor = getEditor();
-    if (!editor) return;
 
     const fmt = formatResult ?? defaultFormatResult;
     const resultText = fmt(st.result);
@@ -277,7 +251,7 @@ export function useInlineCalc(
       });
     }
 
-    if (!defaultPrevented) {
+    if (!defaultPrevented && editor) {
       replaceExpressionInEditor(editor, st.expression, resultText, startIndex);
     }
 
@@ -341,8 +315,8 @@ export function useInlineCalc(
             if (mathResult.startIndex >= currentOffset && mathResult.startIndex < nodeEnd) {
               const localIndex = mathResult.startIndex - currentOffset;
               const range = document.createRange();
-              range.setStart(node, localIndex);
-              range.setEnd(node, localIndex + mathResult.expression.length);
+              range.setStart(node, Math.min(localIndex, node.textContent?.length || 0));
+              range.setEnd(node, Math.min(localIndex + mathResult.expression.length, node.textContent?.length || 0));
               foundPosition = positionFn(range.getBoundingClientRect());
               break;
             }
@@ -397,7 +371,13 @@ export function useInlineCalc(
 
     const isInput = el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
 
+    let composing = false;
+
+    const onCompositionStart = () => { composing = true; };
+    const onCompositionEnd = () => { composing = false; };
+
     const onInput = () => {
+      if (composing) return;
       if (isInput) {
         handleInput(el.value, [], el.selectionStart ?? undefined);
       } else {
@@ -406,12 +386,17 @@ export function useInlineCalc(
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.isComposing) return;
       handleKeyDown(e);
     };
 
+    el.addEventListener("compositionstart", onCompositionStart);
+    el.addEventListener("compositionend", onCompositionEnd);
     el.addEventListener("input", onInput);
     el.addEventListener("keydown", onKeyDown);
     return () => {
+      el.removeEventListener("compositionstart", onCompositionStart);
+      el.removeEventListener("compositionend", onCompositionEnd);
       el.removeEventListener("input", onInput);
       el.removeEventListener("keydown", onKeyDown);
     };
