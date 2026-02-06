@@ -8,7 +8,7 @@ import { Demo } from "@/components/Demo";
 import { Features } from "@/components/Features";
 import { API } from "@/components/API";
 import { Footer } from "@/components/Footer";
-import { TableOfContents } from "@/components/TableOfContents";
+import { TableOfContents, TocBottom } from "@/components/TableOfContents";
 
 const DEMO_BLURHASH = "L9NTzYf400xv%MRiWAof00t8~qWA";
 
@@ -62,13 +62,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-neutral-50">
       <div className="flex min-h-screen">
-        {/* Left 30% - Table of Contents */}
-        <div className="w-[30%] flex justify-start p-8 pt-[15vh] sticky top-0 h-screen min-[1200px]:pl-[10vw]">
+        {/* Left 30% - Table of Contents (hidden on mobile) */}
+        <div className="hidden md:flex w-[30%] justify-start p-8 pt-[15vh] sticky top-0 h-screen min-[1200px]:pl-[10vw]">
           <TableOfContents />
         </div>
 
-        {/* Right 70% - Main Content */}
-        <div className="w-[70%] max-w-[900px] pt-[15vh] pb-16 pr-16 relative">
+        {/* Right 70% - Main Content (full width on mobile) */}
+        <div className="w-full md:w-[70%] max-w-[900px] pt-[20vh] md:pt-[15vh] pb-16 px-6 md:px-0 md:pr-16 relative">
           {/* Fade overlay */}
           <div
             className="fixed top-0 left-0 w-screen h-32 backdrop-blur-[6px] pointer-events-none z-10"
@@ -100,6 +100,9 @@ export default function Home() {
           <section id="api">
             <API />
           </section>
+
+          {/* TOC bottom content shown on mobile only */}
+          <TocBottom className="md:hidden mt-12 pt-8 border-t border-neutral-200" />
         </div>
       </div>
     </main>
