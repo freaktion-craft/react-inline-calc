@@ -41,23 +41,6 @@ import { motion, AnimatePresence } from "motion/react";
 </AnimatePresence>`,
   },
   {
-    id: "rich-text",
-    title: "Rich Text",
-    description: "Works with TipTap, Slate, ProseMirror, Lexical — intercept and use your editor's API.",
-    code: `const calc = useInlineCalc({
-  getEditor: () => editorRef.current,
-  onBeforeApply: ({ startIndex, endIndex, formattedResult, preventDefault }) => {
-    preventDefault(); // Skip default DOM mutation
-
-    // Use your editor's transaction API instead
-    editor.chain()
-      .deleteRange({ from: startIndex, to: endIndex })
-      .insertContentAt(startIndex, formattedResult)
-      .run();
-  },
-});`,
-  },
-  {
     id: "styling",
     title: "Styling",
     description: "CSS variables for theming. Override highlight color, tooltip appearance.",
@@ -72,18 +55,6 @@ import "react-inline-calc/styles.css";
   --inline-calc-result: rgba(0, 0, 0, 0.7);
   --inline-calc-highlight: #fef08a;
 }`,
-  },
-  {
-    id: "core",
-    title: "Core",
-    description: "Framework-agnostic math detection. Use without React.",
-    code: `import { detectMathExpression, tokenize, evaluateTokens } from "react-inline-calc/core";
-
-const result = detectMathExpression("Total: 100+50");
-// => { expression: "100+50", result: 150, startIndex: 7 }
-
-const tokens = tokenize("10 + 5 * 2");
-const value = evaluateTokens(tokens); // 20 (PEMDAS)`,
   },
 ];
 

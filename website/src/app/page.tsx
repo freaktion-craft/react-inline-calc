@@ -4,6 +4,7 @@ import { Overview } from "@/components/Overview";
 import { Installation } from "@/components/Installation";
 import { Demo } from "@/components/Demo";
 import { Features } from "@/components/Features";
+import { API } from "@/components/API";
 import { Footer } from "@/components/Footer";
 import { TableOfContents } from "@/components/TableOfContents";
 
@@ -17,7 +18,7 @@ export default function Home() {
         </div>
 
         {/* Right 70% - Main Content */}
-        <div className="w-[70%] max-w-[800px] pt-[15vh] pb-16 pr-16 relative">
+        <div className="w-[70%] max-w-[900px] pt-[15vh] pb-16 pr-16 relative">
           {/* Fade overlay */}
           <div
             className="fixed top-0 left-0 w-screen h-32 backdrop-blur-[6px] pointer-events-none z-10"
@@ -52,6 +53,9 @@ export default function Home() {
           </section>
           <section id="features">
             <Features />
+          </section>
+          <section id="api">
+            <API />
           </section>
         </div>
       </div>

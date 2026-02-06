@@ -7,6 +7,7 @@ const sections = [
   { id: "installation", label: "Installation" },
   { id: "demo", label: "Demo" },
   { id: "features", label: "Features" },
+  { id: "api", label: "API" },
 ];
 
 export function TableOfContents() {
@@ -85,10 +86,10 @@ export function TableOfContents() {
           rel="noopener noreferrer"
           className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
         >
-          v0.1.0
+          v0.2.0
         </a>
         <a
-          href="https://github.com/user/react-inline-calc"
+          href="https://github.com/freaktion-craft/react-inline-calc"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-start gap-2 text-sm text-neutral-500 hover:text-neutral-900 transition-colors"

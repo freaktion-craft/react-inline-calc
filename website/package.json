@@ -13,7 +13,7 @@
     "next": "^16.1.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-inline-calc": "file:..",
+    "react-inline-calc": "^0.1.0",
     "sugar-high": "^0.9.5"
   },
   "devDependencies": {

@@ -4,7 +4,7 @@ export function Footer() {
       <p>
         Built with{" "}
         <a
-          href="https://github.com/user/react-inline-calc"
+          href="https://github.com/freaktion-craft/react-inline-calc"
           target="_blank"
           rel="noopener noreferrer"
           className="text-neutral-700 hover:text-neutral-900 underline underline-offset-2"
