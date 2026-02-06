@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "blurhash": "^2.0.5",
     "motion": "^11.0.0",
     "next": "^16.1.6",
     "react": "^18.2.0",

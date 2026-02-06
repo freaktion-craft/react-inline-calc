@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useRef, useEffect, useCallback } from "react";
+import { decode } from "blurhash";
 import { Overview } from "@/components/Overview";
 import { Installation } from "@/components/Installation";
 import { Demo } from "@/components/Demo";
@@ -7,6 +9,54 @@ import { Features } from "@/components/Features";
 import { API } from "@/components/API";
 import { Footer } from "@/components/Footer";
 import { TableOfContents } from "@/components/TableOfContents";
+
+const DEMO_BLURHASH = "L9NTzYf400xv%MRiWAof00t8~qWA";
+
+function DemoVideo() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const w = 32;
+    const h = Math.round(32 * (1080 / 3336));
+    canvas.width = w;
+    canvas.height = h;
+    const pixels = decode(DEMO_BLURHASH, w, h);
+    const ctx = canvas.getContext("2d")!;
+    const imageData = ctx.createImageData(w, h);
+    imageData.data.set(pixels);
+    ctx.putImageData(imageData, 0, 0);
+  }, []);
+
+  // Check if video already loaded before React hydrated
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && video.readyState >= 2) setLoaded(true);
+  }, []);
+
+  return (
+    <div className="relative w-full rounded-lg border border-neutral-200 mb-16 overflow-hidden">
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full transition-opacity duration-[1400ms] pointer-events-none z-10"
+        style={{ opacity: loaded ? 0 : 1 }}
+      />
+      <video
+        ref={videoRef}
+        src="/demo.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        onLoadedData={() => setLoaded(true)}
+        className="block w-full"
+      />
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -36,14 +86,7 @@ export default function Home() {
 
           <section id="overview">
             <Overview />
-            <video
-              src="/demo.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full rounded-lg border border-neutral-200 mb-16"
-            />
+            <DemoVideo />
           </section>
           <section id="installation">
             <Installation />
