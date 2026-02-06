@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* contentEditable placeholder */
+[contenteditable][data-placeholder]:not(:focus):empty::before,
+[contenteditable][data-placeholder]:not(:focus):has(br:only-child)::before {
+  content: attr(data-placeholder);
+  color: #a3a3a3;
+  pointer-events: none;
+}
+
+/* Sugar-high syntax highlighting */
+:root {
+  --sh-class: #2563eb;
+  --sh-identifier: #374151;
+  --sh-sign: #6b7280;
+  --sh-property: #2563eb;
+  --sh-entity: #dc2626;
+  --sh-jsxliterals: #374151;
+  --sh-string: #059669;
+  --sh-keyword: #8b5cf6;
+  --sh-comment: #6b7280;
+  --sh-space: inherit;
+}

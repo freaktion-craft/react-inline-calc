@@ -1,0 +1,75 @@
+/**
+ * react-inline-calc default styles
+ *
+ * Import this file for pre-styled toast and keycap components:
+ * import "react-inline-calc/styles.css";
+ *
+ * Or customize via CSS variables:
+ * --inline-calc-bg: white;
+ * --inline-calc-border: rgba(0, 0, 0, 0.1);
+ * --inline-calc-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+ * --inline-calc-text: rgba(0, 0, 0, 0.5);
+ * --inline-calc-result: rgba(0, 0, 0, 0.7);
+ * --inline-calc-keycap-border: rgba(0, 0, 0, 0.15);
+ * --inline-calc-keycap-text: rgba(0, 0, 0, 0.4);
+ * --inline-calc-highlight: #fef08a;
+ */
+
+/* Toast container */
+.inline-calc-toast {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 8px;
+  background-color: var(--inline-calc-bg, white);
+  border-radius: 8px;
+  border: 1px solid var(--inline-calc-border, rgba(0, 0, 0, 0.1));
+  box-shadow: var(--inline-calc-shadow, 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04));
+  font-size: 12px;
+  color: var(--inline-calc-text, rgba(0, 0, 0, 0.5));
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Result text */
+.inline-calc-result {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: var(--inline-calc-result, rgba(0, 0, 0, 0.7));
+}
+
+/* Keycap (keyboard key visual) */
+.inline-calc-keycap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--inline-calc-keycap-text, rgba(0, 0, 0, 0.4));
+  background-color: transparent;
+  border-radius: 5px;
+  border: 1px solid var(--inline-calc-keycap-border, rgba(0, 0, 0, 0.15));
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+/* Expression highlight */
+::highlight(math-highlight) {
+  background-color: var(--inline-calc-highlight, #fef08a);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .inline-calc-toast {
+    --inline-calc-bg: #1a1a1a;
+    --inline-calc-border: rgba(255, 255, 255, 0.1);
+    --inline-calc-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --inline-calc-text: rgba(255, 255, 255, 0.5);
+    --inline-calc-result: rgba(255, 255, 255, 0.8);
+    --inline-calc-keycap-border: rgba(255, 255, 255, 0.15);
+    --inline-calc-keycap-text: rgba(255, 255, 255, 0.4);
+  }
+}
