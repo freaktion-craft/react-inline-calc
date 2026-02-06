@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { version } from "../../../package.json";
 
 const sections = [
   { id: "overview", label: "Overview" },
@@ -86,7 +87,7 @@ export function TableOfContents() {
           rel="noopener noreferrer"
           className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
         >
-          v0.2.0
+          v{version}
         </a>
         <a
           href="https://github.com/freaktion-craft/react-inline-calc"

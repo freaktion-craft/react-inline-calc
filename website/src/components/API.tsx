@@ -120,7 +120,7 @@ const tooltipCode = `<InlineCalcTooltip
   }}
 />`;
 
-const detectCode = `import { detectMathExpression } from "react-inline-calc";
+const detectCode = `import { detectMathExpression, detectMathExpressionAtCursor } from "react-inline-calc";
 
 detectMathExpression("Total: 100+50 items");
 // => { expression: "100+50", result: 150, startIndex: 7, endIndex: 13 }
@@ -129,7 +129,11 @@ detectMathExpression("3.14 × 2");
 // => { expression: "3.14 × 2", result: 6.28, startIndex: 0, endIndex: 8 }
 
 detectMathExpression("No math here");
-// => null`;
+// => null
+
+// Cursor-aware: finds expression at/near cursor position
+detectMathExpressionAtCursor("price is 100+50 and 20*3", 14);
+// => { expression: "100+50", result: 150, startIndex: 9, endIndex: 15 }`;
 
 const coreCode = `import { detectMathExpression, tokenize, evaluateTokens } from "react-inline-calc/core";
 
@@ -257,10 +261,10 @@ export function API() {
       {/* detectMathExpression */}
       <div className="mb-12">
         <h3 className="font-mono text-sm font-medium text-neutral-800 mb-3">
-          detectMathExpression(text)
+          detectMathExpression(text) / detectMathExpressionAtCursor(text, cursor)
         </h3>
         <p className="text-sm text-neutral-500 mb-4">
-          Pure utility function — use it anywhere, no React required. Supports{" "}
+          Pure utility functions — use them anywhere, no React required. <code className="text-neutral-700 bg-neutral-100 px-1.5 py-0.5 rounded text-xs">detectMathExpressionAtCursor</code> finds the expression at or nearest to the cursor position. Supports{" "}
           <code className="text-neutral-700 bg-neutral-100 px-1.5 py-0.5 rounded text-xs">+</code>{" "}
           <code className="text-neutral-700 bg-neutral-100 px-1.5 py-0.5 rounded text-xs">-</code>{" "}
           <code className="text-neutral-700 bg-neutral-100 px-1.5 py-0.5 rounded text-xs">*</code>{" "}
