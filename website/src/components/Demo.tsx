@@ -25,6 +25,10 @@ export function Demo() {
           suppressContentEditableWarning
         />
 
+        <p className="md:hidden mt-2 text-xs text-neutral-400">
+          A physical keyboard is required-ish.
+        </p>
+
         <AnimatePresence>
           {show && (
             <Tooltip
