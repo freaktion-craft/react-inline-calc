@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { version } from "../../../package.json";
+
+const version = process.env.LIB_VERSION ?? "";
 
 const sections = [
   { id: "overview", label: "Overview" },
