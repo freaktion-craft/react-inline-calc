@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const version = process.env.LIB_VERSION ?? "";
 
@@ -40,9 +40,11 @@ export function TocBottom({ className }: { className?: string }) {
 
 export function TableOfContents() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const scrollingRef = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
+      if (scrollingRef.current) return;
       // Check if at bottom of page
       const atBottom =
         window.innerHeight + window.scrollY >= document.body.offsetHeight - 50;
@@ -53,7 +55,7 @@ export function TableOfContents() {
       }
 
       const sectionElements = sections.map((s) => document.getElementById(s.id));
-      const scrollY = window.scrollY + 100;
+      const scrollY = window.scrollY + window.innerHeight * 0.25;
 
       for (let i = sectionElements.length - 1; i >= 0; i--) {
         const el = sectionElements[i];
@@ -93,7 +95,25 @@ export function TableOfContents() {
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                onClick={() => setActiveIndex(i)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById(section.id);
+                  if (el) {
+                    scrollingRef.current = true;
+                    const top = el.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.25;
+                    window.scrollTo({ top, behavior: "smooth" });
+                    let tid: ReturnType<typeof setTimeout>;
+                    const onEnd = () => {
+                      clearTimeout(tid);
+                      tid = setTimeout(() => {
+                        scrollingRef.current = false;
+                        window.removeEventListener("scroll", onEnd);
+                      }, 50);
+                    };
+                    window.addEventListener("scroll", onEnd);
+                  }
+                  setActiveIndex(i);
+                }}
                 className={`transition-colors ${
                   i <= activeIndex
                     ? "text-neutral-900"
