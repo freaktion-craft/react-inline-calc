@@ -38,7 +38,7 @@ function DemoVideo() {
   }, []);
 
   return (
-    <div className="relative w-full rounded-lg border border-neutral-200 mb-16 overflow-hidden">
+    <div className="relative w-full rounded-lg border border-neutral-200 mb-16 overflow-hidden" style={{ aspectRatio: "3336/1080" }}>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full transition-opacity duration-[1400ms] pointer-events-none z-10"
